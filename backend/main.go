@@ -3,6 +3,7 @@ package main // import "github.com/y1zhou/love100/backend"
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/y1zhou/love100/backend/db"
 
@@ -24,6 +25,7 @@ func main() {
 	flag.Parse()
 	if h {
 		flag.Usage()
+		os.Exit(0)
 	}
 
 	// Connect to MySQL and auto migrate schema
