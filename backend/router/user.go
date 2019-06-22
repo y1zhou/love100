@@ -1,0 +1,214 @@
+package router
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	"github.com/y1zhou/love100/backend/db"
+	"golang.org/x/crypto/bcrypt"
+)
+
+// CreateUser INSERT INTO users table. Does nothing if username already exists.
+func CreateUser(c *gin.Context) {
+	var json db.UserSignupForm
+	if err := c.ShouldBind(&json); err != nil {
+		// Form validation errors
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": "Form doesn't bind.",
+			"err": err.Error(),
+		})
+		return
+	}
+	hash, _ := hashPassword(json.Password)
+	user := db.Users{
+		Username: json.Username,
+		Password: hash,
+		Email:    json.Email,
+	}
+	if err := db.DB.Create(&user).Error; err != nil {
+		// User already exists
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": "User already exists.",
+			"err": err,
+		})
+	} else {
+		// Create new user
+		c.JSON(http.StatusCreated, gin.H{
+			"msg": user.Username,
+			"err": "",
+		})
+	}
+}
+
+// DeleteUser actually a soft delete as there's the "deleted_at" field.
+func DeleteUser(c *gin.Context) {
+	var json db.UserDeleteForm
+	if err := c.ShouldBind(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": "Form doens't bind.",
+			"err": err.Error(),
+		})
+		return
+	}
+	var user db.Users
+	if err := db.DB.Where("username = ?", json.Username).
+		First(&user).Error; gorm.IsRecordNotFoundError(err) {
+		// User not found
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "",
+			"err": "User not found in database.",
+		})
+		return
+	}
+	if checkPasswordHash(json.Password, user.Password) {
+		// Soft delete user
+		db.DB.Delete(&user)
+		c.JSON(http.StatusOK, gin.H{
+			"msg": json.Username,
+			"err": "",
+		})
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"msg": "Check password hash failed.",
+			"err": fmt.Sprintf("Wrong password for user %s", user.Username),
+		})
+	}
+}
+
+// UpdateUser Change password and/or email.
+func UpdateUser(c *gin.Context) {
+	var json db.UserUpdateForm
+	if errs := c.ShouldBind(&json); errs != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": "Form doesn't bind.",
+			"err": errs,
+		})
+		return
+	}
+	var user db.Users
+	if err := db.DB.Unscoped().
+		Where("username = ?", json.Username).
+		First(&user).Error; err != nil {
+		// User not found
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "User not found in database.",
+			"err": err,
+		})
+		return
+	}
+	if checkPasswordHash(json.Password, user.Password) {
+		var newHash string
+		if json.NewPass != "" {
+			newHash, _ = hashPassword(json.NewPass)
+		} else {
+			newHash = user.Password
+		}
+
+		// Unscoped to bring deleted users back
+		db.DB.Unscoped().Model(&user).
+			Updates(map[string]interface{}{
+				"password":   newHash,
+				"email":      json.Email,
+				"deleted_at": nil})
+		c.JSON(http.StatusOK, gin.H{
+			"msg": user.Username,
+			"err": "",
+		})
+	} else {
+		// Old password doesn't match
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"msg": "Check password hash failed.",
+			"err": fmt.Sprintf("Wrong password for user %s.", user.Username),
+		})
+	}
+}
+
+// FetchAllUsers lists all users in the database.
+func FetchAllUsers(c *gin.Context) {
+	type userQuery struct {
+		gorm.Model
+		Username string
+		Email    string
+	}
+	var users []userQuery
+	db.DB.Table("users").
+		Select("id, username, email, created_at, updated_at, deleted_at").
+		// Where("deleted_at is NULL").
+		Order("deleted_at asc").
+		Scan(&users)
+	c.JSON(http.StatusOK, gin.H{
+		"msg":  len(users),
+		"err":  "",
+		"data": users,
+	})
+
+}
+
+// LoginUser Start login session
+func LoginUser(c *gin.Context) {
+	var json db.UserLoginForm
+	session := sessions.Default(c)
+	if errs := c.ShouldBind(&json); errs != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"msg":    "Form doesn't bind.",
+			"err":    errs.Error(),
+		})
+		return
+	}
+	var user db.Users
+	if err := db.DB.Where("username = ?", json.Username).First(&user).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status": http.StatusOK,
+			"msg":    "User not found in database.",
+			"err":    err,
+		})
+		return
+	}
+	if checkPasswordHash(json.Password, user.Password) {
+		session.Set("user", user.ID)
+		session.Save()
+		c.JSON(http.StatusOK, gin.H{
+			"status": http.StatusOK,
+			"msg":    user.Username,
+			"err":    "",
+		})
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"msg": "",
+			"err": fmt.Sprintf("Wrong password for user %s.", user.Username),
+		})
+	}
+}
+
+// AuthUser Check if user session is logged in
+func AuthUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		userID := session.Get("user")
+		if userID == nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status": http.StatusUnauthorized,
+				"msg":    "",
+				"err":    "Invalid session token.",
+			})
+			c.Abort()
+		} else {
+			c.Next()
+		}
+	}
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}

@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/y1zhou/love100/backend/db"
+	"github.com/y1zhou/love100/backend/router"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
 
@@ -36,12 +36,6 @@ func main() {
 	defer db.DB.Close()
 	db.DB.AutoMigrate(&db.Contents{}, &db.Users{})
 
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-
-	r.Run(":" + port)
+	r := router.SetupRouter()
+	r.Run("localhost:" + port)
 }
