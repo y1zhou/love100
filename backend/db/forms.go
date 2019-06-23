@@ -29,12 +29,10 @@ type (
 	}
 	// UserDeleteForm Delete an existing user.
 	UserDeleteForm struct {
-		Username string `form:"Username" json:"Username" binding:"required"`
 		Password string `form:"Password" json:"Password" binding:"required,min=6"`
 	}
 	// UserUpdateForm Change password or email.
 	UserUpdateForm struct {
-		Username string `form:"Username" json:"Username" binding:"required"`
 		Password string `form:"Password" json:"Password" binding:"required,min=6"`
 		NewPass  string `form:"NewPass" json:"NewPass" binding:"omitempty,min=6,nefield=Password"`
 		Email    string `form:"Email" json:"Email" binding:"omitempty,email"`

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/y1zhou/love100/backend/db"
@@ -54,8 +53,10 @@ func DeleteUser(c *gin.Context) {
 		})
 		return
 	}
+	session := sessions.Default(c)
+	userID := session.Get("userID")
 	var user db.Users
-	if err := db.DB.Where("username = ?", json.Username).
+	if err := db.DB.Where("id = ?", userID).
 		First(&user).Error; gorm.IsRecordNotFoundError(err) {
 		// User not found
 		c.JSON(http.StatusOK, gin.H{
@@ -65,10 +66,12 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 	if checkPasswordHash(json.Password, user.Password) {
+		session.Clear()
+		session.Save()
 		// Soft delete user
-		db.DB.Delete(&user)
+		db.DB.Delete(&user).Where("id = ?", userID)
 		c.JSON(http.StatusOK, gin.H{
-			"msg": json.Username,
+			"msg": user.Username,
 			"err": "",
 		})
 	} else {
@@ -89,9 +92,10 @@ func UpdateUser(c *gin.Context) {
 		})
 		return
 	}
+	userID := sessions.Default(c).Get("userID")
 	var user db.Users
 	if err := db.DB.Unscoped().
-		Where("username = ?", json.Username).
+		Where("id = ?", userID).
 		First(&user).Error; err != nil {
 		// User not found
 		c.JSON(http.StatusOK, gin.H{
@@ -108,12 +112,12 @@ func UpdateUser(c *gin.Context) {
 			newHash = user.Password
 		}
 
-		// Unscoped to bring deleted users back
-		db.DB.Unscoped().Model(&user).
+		db.DB.Model(&user).
 			Updates(map[string]interface{}{
-				"password":   newHash,
-				"email":      json.Email,
-				"deleted_at": nil})
+				"password": newHash,
+				"email":    json.Email,
+			}).
+			Where("id = ?", userID)
 		c.JSON(http.StatusOK, gin.H{
 			"msg": user.Username,
 			"err": "",
@@ -154,29 +158,38 @@ func LoginUser(c *gin.Context) {
 	session := sessions.Default(c)
 	if errs := c.ShouldBind(&json); errs != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": http.StatusBadRequest,
-			"msg":    "Form doesn't bind.",
-			"err":    errs.Error(),
+			"msg": "Form doesn't bind.",
+			"err": errs.Error(),
 		})
 		return
 	}
 	var user db.Users
-	if err := db.DB.Where("username = ?", json.Username).First(&user).Error; err != nil {
+	if err := db.DB.Where("username = ?", json.Username).
+		First(&user).Error; err != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"status": http.StatusOK,
-			"msg":    "User not found in database.",
-			"err":    err,
+			"msg": "User not found in database.",
+			"err": err,
 		})
 		return
 	}
 	if checkPasswordHash(json.Password, user.Password) {
-		session.Set("user", user.ID)
-		session.Save()
-		c.JSON(http.StatusOK, gin.H{
-			"status": http.StatusOK,
-			"msg":    user.Username,
-			"err":    "",
+		session.Clear()
+		session.Set("userID", user.ID)
+		session.Options(sessions.Options{
+			MaxAge: 3600 * 12,
+			Path:   "/",
 		})
+		err := session.Save()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"err": "Failed to generate session token",
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"msg": user.Username,
+				"err": "",
+			})
+		}
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"msg": "",
@@ -185,20 +198,31 @@ func LoginUser(c *gin.Context) {
 	}
 }
 
-// AuthUser Check if user session is logged in
-func AuthUser() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		userID := session.Get("user")
-		if userID == nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"status": http.StatusUnauthorized,
-				"msg":    "",
-				"err":    "Invalid session token.",
+// LogoutUser ...
+func LogoutUser(c *gin.Context) {
+	session := sessions.Default(c)
+	userID := session.Get("userID")
+	if userID == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": "Session ID not found",
+			"err": "Invalid session token",
+		})
+	} else {
+		session.Set("userID", userID)
+		session.Options(sessions.Options{
+			MaxAge: -1,
+			Path:   "/",
+		})
+		err := session.Save()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"err": "Failed to delete session token",
 			})
-			c.Abort()
 		} else {
-			c.Next()
+			c.JSON(http.StatusOK, gin.H{
+				"msg": "Successfully logged out",
+				"err": "",
+			})
 		}
 	}
 }
