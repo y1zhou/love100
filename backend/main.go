@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/y1zhou/love100/backend/config"
 	"github.com/y1zhou/love100/backend/db"
 	"github.com/y1zhou/love100/backend/router"
 
@@ -29,13 +30,13 @@ func main() {
 	}
 
 	// Connect to MySQL and auto migrate schema
-	dbInfo := db.ReadMysqlInfo(configFile)
+	configInfo := config.ReadConfigInfo(configFile)
 	dbLogin := fmt.Sprintf("%s:%s@/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		dbInfo.User, dbInfo.Password, dbInfo.Database)
+		configInfo.User, configInfo.Password, configInfo.Database)
 	db.DB, _ = gorm.Open("mysql", dbLogin)
 	defer db.DB.Close()
 	db.DB.AutoMigrate(&db.Contents{}, &db.Users{})
 
-	r := router.SetupRouter()
+	r := router.SetupRouter(configInfo.CookieSecret)
 	r.Run("localhost:" + port)
 }
