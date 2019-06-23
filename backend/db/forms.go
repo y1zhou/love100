@@ -8,10 +8,16 @@ type (
 		Status bool   `form:"ItemStatus" json:"ItemStatus"`
 	}
 
-	// ContentDeleteForm Delete an existing item using its ID. Can also be used to modify items.
+	// ContentDeleteForm Delete existing items using their ID.
 	ContentDeleteForm struct {
-		ItemID int64 `form:"ItemID" json:"ItemID" binding:"required"`
-		Status bool  `form:"ItemStatus" json:"ItemStatus"`
+		ItemIDs []int64 `form:"ItemIDs" json:"ItemIDs" binding:"required"`
+	}
+
+	// ContentUpdateForm ...
+	ContentUpdateForm struct {
+		ItemID []int64  `form:"ItemID" json:"ItemID" binding:"required"`
+		Title  []string `form:"Title" json:"Title" binding:"required"`
+		Status []bool   `form:"ItemStatus" json:"ItemStatus"`
 	}
 )
 

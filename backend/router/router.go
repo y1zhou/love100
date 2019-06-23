@@ -30,6 +30,19 @@ func SetupRouter(cookieSecret string) *gin.Engine {
 		rUser.DELETE("/delete", DeleteUser)
 	}
 
+	rContents := r.Group("/contents")
+	{
+		rContents.GET("/", FetchAllContents)
+	}
+
+	rContent := r.Group("/content")
+	rContent.Use(AuthUser())
+	{
+		rContent.POST("/", CreateContent)
+		rContent.PUT("/", UpdateContent)
+		rContent.DELETE("/", DeleteContent)
+	}
+
 	return r
 }
 

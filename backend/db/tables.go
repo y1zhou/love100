@@ -8,7 +8,7 @@ type (
 	// Contents ...
 	Contents struct {
 		gorm.Model
-		Title  string `gorm:"Type:varchar(200);NOT NULL"`
+		Title  string `gorm:"Type:varchar(200);NOT NULL;UNIQUE"`
 		Status bool   `gorm:"Type:BOOLEAN;DEFAULT:0"`
 	}
 
