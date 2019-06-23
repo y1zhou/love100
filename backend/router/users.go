@@ -56,7 +56,7 @@ func DeleteUser(c *gin.Context) {
 	session := sessions.Default(c)
 	userID := session.Get("userID")
 	var user db.Users
-	if err := db.DB.Where("id = ?", userID).
+	if err := db.DB.Where(userID).
 		First(&user).Error; gorm.IsRecordNotFoundError(err) {
 		// User not found
 		c.JSON(http.StatusOK, gin.H{
@@ -69,7 +69,7 @@ func DeleteUser(c *gin.Context) {
 		session.Clear()
 		session.Save()
 		// Soft delete user
-		db.DB.Delete(&user).Where("id = ?", userID)
+		db.DB.Where(userID).Delete(&user)
 		c.JSON(http.StatusOK, gin.H{
 			"msg": user.Username,
 			"err": "",
@@ -141,7 +141,6 @@ func FetchAllUsers(c *gin.Context) {
 	var users []userQuery
 	db.DB.Table("users").
 		Select("id, username, email, created_at, updated_at, deleted_at").
-		// Where("deleted_at is NULL").
 		Order("deleted_at asc").
 		Scan(&users)
 	c.JSON(http.StatusOK, gin.H{
