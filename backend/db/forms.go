@@ -15,9 +15,9 @@ type (
 
 	// ContentUpdateForm ...
 	ContentUpdateForm struct {
-		ItemID int64  `form:"ItemID" json:"ItemID" binding:"required"`
-		Title  string `form:"Title" json:"Title" binding:"required"`
-		Status bool   `form:"ItemStatus" json:"ItemStatus"`
+		OldTitle string `form:"OldTitle" json:"OldTitle" binding:"required"`
+		NewTitle string `form:"NewTitle" json:"NewTitle" binding:"required"`
+		Status   bool   `form:"ItemStatus" json:"ItemStatus"`
 	}
 )
 
