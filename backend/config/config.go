@@ -12,6 +12,7 @@ type ConfigInfo struct {
 	User         string `json:"MysqlUser"`
 	Password     string `json:"MysqlPassword"`
 	CookieSecret string `json:"CookieSecret"`
+	Port         string `json:"BackendPort"`
 }
 
 // ReadConfigInfo Read config information from a JSON file.

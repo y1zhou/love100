@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,8 @@ import (
 // SetupRouter ...
 func SetupRouter(cookieSecret string) *gin.Engine {
 	r := gin.Default()
+
+	r.Use(cors.Default())
 
 	store := cookie.NewStore([]byte(cookieSecret))
 	r.Use(sessions.Sessions("userSession", store))
