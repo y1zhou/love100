@@ -1,36 +1,69 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <div>
-      <p>
-        If Element is successfully added to this project, you'll see an
-        <code v-text="'<el-button>'"></code>
-        below
-      </p>
-      <el-button>el-button</el-button>
-    </div>
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <el-container id="app">
+    <el-header height="210px">
+      <navbar />
+    </el-header>
+    <el-main class="main-container">
+      <display-table v-if="loggedIn" class="main-table" />
+      <modify-table v-else class="main-table" />
+    </el-main>
+  </el-container>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Login from "./components/Login.vue";
+import Navbar from "./components/Navbar.vue";
+import DisplayTable from "./components/DisplayTable";
+import ModifyTable from "./components/ModifyTable";
+import axios from "axios";
 
 export default {
-  name: 'app',
+  name: "app",
   components: {
-    HelloWorld
+    Login,
+    Navbar,
+    DisplayTable,
+    ModifyTable
+  },
+  data() {
+    return {
+      loggedIn: false
+    };
+  },
+  mounted() {
+    axios
+      .get("/api/user/", { withCredentials: true })
+      .then(r => {
+        if (r.data.err != "") {
+          this.$message.error(r.data.err);
+        } else {
+          this.loggedIn = true;
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
-}
+};
 </script>
 
-<style>
+<style scoped>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  text-align: center;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+.main-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+}
+.main-table {
+  width: 100%;
+  max-width: 680px;
 }
 </style>
