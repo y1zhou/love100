@@ -1,17 +1,17 @@
 <template>
   <el-container id="app">
-    <el-header height="210px">
+    <el-header>
       <navbar />
     </el-header>
     <el-main class="main-container">
-      <display-table v-if="loggedIn" class="main-table" />
-      <modify-table v-else class="main-table" />
+      <modify-table v-if="loggedIn" class="edit-table" />
+      <display-table v-else class="main-table" />
+      <el-backtop />
     </el-main>
   </el-container>
 </template>
 
 <script>
-import Login from "./components/Login.vue";
 import Navbar from "./components/Navbar.vue";
 import DisplayTable from "./components/DisplayTable";
 import ModifyTable from "./components/ModifyTable";
@@ -20,7 +20,6 @@ import axios from "axios";
 export default {
   name: "app",
   components: {
-    Login,
     Navbar,
     DisplayTable,
     ModifyTable
@@ -35,7 +34,7 @@ export default {
       .get("/api/user/", { withCredentials: true })
       .then(r => {
         if (r.data.err != "") {
-          this.$message.error(r.data.err);
+          console.log(r.data.msg);
         } else {
           this.loggedIn = true;
         }
@@ -65,5 +64,9 @@ export default {
 .main-table {
   width: 100%;
   max-width: 680px;
+}
+.edit-table {
+  width: 100%;
+  max-width: 1000px;
 }
 </style>

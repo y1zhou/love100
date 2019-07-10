@@ -32,7 +32,6 @@ export default {
         if (r.data.err != "") {
           this.$message.error(r.data.msg);
         } else {
-          console.log(`Found ${r.data.msg} entries.`);
           this.tableData = r.data.data;
         }
       })
@@ -46,6 +45,7 @@ export default {
 <style>
 .el-table .finished-row {
   text-decoration: line-through;
+  font-style: italic;
   color: #c0c4cc;
 }
 </style>
