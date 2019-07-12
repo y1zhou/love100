@@ -10,11 +10,6 @@ import axios from "axios";
 
 export default {
   name: "DisplayTable",
-  data() {
-    return {
-      tableData: []
-    };
-  },
   props: {},
   methods: {
     tableRowClass({ row }) {
@@ -25,19 +20,10 @@ export default {
       }
     }
   },
-  mounted() {
-    axios
-      .get(`/api/contents/`)
-      .then(r => {
-        if (r.data.err != "") {
-          this.$message.error(r.data.msg);
-        } else {
-          this.tableData = r.data.data;
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
+  computed: {
+    tableData() {
+      return this.$store.state.tableData;
+    }
   }
 };
 </script>

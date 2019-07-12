@@ -1,13 +1,21 @@
 <template>
   <el-row type="flex" justify="center" class="header-bar">
-    <el-col :span="6">
+    <el-col :span="3">
       <img src="../assets/love.png" />
     </el-col>
-    <el-col :span="6">
+    <el-col :span="12" :offset="3">
       <div>这里记录了我们要一起做的100件事。</div>
+      <el-progress
+        :text-inside="true"
+        :stroke-width="15"
+        :percentage="percentFinished"
+        color="#ff3366"
+      />
     </el-col>
-    <el-col :span="6">
-      <el-button v-if="username != ''" @click="postLogout" icon="el-icon-switch-button" circle />
+    <el-col :span="3" :offset="3">
+      <el-tooltip v-if="showLogout" effect="dark" content="登出" placement="bottom">
+        <el-button @click="postLogout" icon="el-icon-switch-button" circle />
+      </el-tooltip>
       <login v-else />
     </el-col>
   </el-row>
@@ -22,26 +30,6 @@ export default {
     Login
   },
   props: {},
-  data() {
-    return {
-      showLogin: false,
-      username: ""
-    };
-  },
-  mounted() {
-    axios
-      .get("/api/user/", { withCredentials: true })
-      .then(r => {
-        if (r.data.err != "") {
-          console.log(r.data.msg);
-        } else {
-          this.username = r.data.msg;
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  },
   methods: {
     postLogout: function() {
       axios
@@ -52,7 +40,7 @@ export default {
           if (r.data.err != "") {
             this.$message.error(r.data.err);
           } else {
-            this.loggedIn = false;
+            this.$store.commit("logout");
             window.location.reload();
           }
         })
@@ -60,6 +48,15 @@ export default {
           this.$message.error("You are not logged in.");
           console.log(err);
         });
+    }
+  },
+  computed: {
+    showLogout() {
+      return this.$store.state.loggedIn;
+    },
+    // Calculate percentage of finished entries
+    percentFinished() {
+      return this.$store.getters.finishedPercentage;
     }
   }
 };

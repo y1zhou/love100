@@ -1,9 +1,18 @@
 <template>
   <div>
-    <el-button @click="loginVisible = true" icon="el-icon-user" circle />
-    <el-dialog title="登录" :visible.sync="loginVisible" width="40%" center v-loading="loading">
+    <el-tooltip effect="dark" content="登录" placement="bottom">
+      <el-button @click="loginVisible = true" icon="el-icon-user" circle />
+    </el-tooltip>
+    <el-dialog
+      title="登录"
+      :visible.sync="loginVisible"
+      @opened="$refs.username.focus()"
+      width="30%"
+      center
+      v-loading="loading"
+    >
       <div class="login-info">
-        <el-input placeholder="用户名" v-model="username" clearable />
+        <el-input ref="username" placeholder="用户名" v-model="username" clearable />
         <el-input
           placeholder="密码"
           v-model="password"
@@ -12,7 +21,7 @@
           @keyup.enter.native="postLogin"
         />
       </div>
-      <span slot="footer" class="dialog-footer">
+      <span slot="footer">
         <el-button @click="loginVisible = false">取 消</el-button>
         <el-button type="primary" @click="postLogin">确 定</el-button>
       </span>

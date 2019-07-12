@@ -24,24 +24,49 @@ export default {
     DisplayTable,
     ModifyTable
   },
-  data() {
-    return {
-      loggedIn: false
-    };
-  },
-  mounted() {
+  created() {
+    // Check login status
     axios
       .get("/api/user/", { withCredentials: true })
       .then(r => {
         if (r.data.err != "") {
           console.log(r.data.msg);
         } else {
-          this.loggedIn = true;
+          this.$store.commit("login");
         }
       })
       .catch(err => {
         console.log(err);
       });
+    // Get table from database
+    axios
+      .get(`/api/contents/`)
+      .then(r => {
+        if (r.data.err != "") {
+          this.$message.error(r.data.msg);
+        } else {
+          console.log(`Found ${r.data.msg} entries.`);
+
+          r.data.data.forEach(x => {
+            x.CreatedAt = new Date(x.CreatedAt).toLocaleString("default", {
+              hour12: false
+            });
+            x.UpdatedAt = new Date(x.UpdatedAt).toLocaleString("default", {
+              hour12: false
+            });
+          });
+          r.data.data.sort(x => x.Status);
+          this.$store.commit("loadTable", r.data.data);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  },
+  computed: {
+    loggedIn: function() {
+      return this.$store.state.loggedIn;
+    }
   }
 };
 </script>
@@ -63,10 +88,10 @@ export default {
 }
 .main-table {
   width: 100%;
-  max-width: 680px;
+  max-width: 800px;
 }
 .edit-table {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1050px;
 }
 </style>
