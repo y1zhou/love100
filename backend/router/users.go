@@ -60,8 +60,8 @@ func DeleteUser(c *gin.Context) {
 		First(&user).Error; gorm.IsRecordNotFoundError(err) {
 		// User not found
 		c.JSON(http.StatusOK, gin.H{
-			"msg": "",
-			"err": "User not found in database.",
+			"msg": "User not found in database.",
+			"err": err,
 		})
 		return
 	}
@@ -76,8 +76,8 @@ func DeleteUser(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"msg": "Check password hash failed.",
-			"err": fmt.Sprintf("Wrong password for user %s", user.Username),
+			"msg": fmt.Sprintf("Check password hash failed for user %s", user.Username),
+			"err": user.Username,
 		})
 	}
 }
@@ -125,8 +125,8 @@ func UpdateUser(c *gin.Context) {
 	} else {
 		// Old password doesn't match
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"msg": "Check password hash failed.",
-			"err": fmt.Sprintf("Wrong password for user %s.", user.Username),
+			"msg": fmt.Sprintf("Check password hash failed for user %s", user.Username),
+			"err": user.Username,
 		})
 	}
 }
@@ -174,6 +174,7 @@ func LoginUser(c *gin.Context) {
 	if checkPasswordHash(json.Password, user.Password) {
 		session.Clear()
 		session.Set("userID", user.ID)
+		session.Set("username", user.Username)
 		session.Options(sessions.Options{
 			MaxAge: 3600 * 12,
 			Path:   "/",
@@ -181,7 +182,8 @@ func LoginUser(c *gin.Context) {
 		err := session.Save()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"err": "Failed to generate session token",
+				"msg": "Failed to generate session token",
+				"err": err,
 			})
 		} else {
 			c.JSON(http.StatusOK, gin.H{
@@ -191,8 +193,8 @@ func LoginUser(c *gin.Context) {
 		}
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"msg": "",
-			"err": fmt.Sprintf("Wrong password for user %s.", user.Username),
+			"msg": fmt.Sprintf("Check password hash failed for user %s", user.Username),
+			"err": user.Username,
 		})
 	}
 }
@@ -215,7 +217,8 @@ func LogoutUser(c *gin.Context) {
 		err := session.Save()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"err": "Failed to delete session token",
+				"msg": "Failed to delete session token",
+				"err": err,
 			})
 		} else {
 			c.JSON(http.StatusOK, gin.H{
@@ -223,6 +226,23 @@ func LogoutUser(c *gin.Context) {
 				"err": "",
 			})
 		}
+	}
+}
+
+// CurrentUser Get the current logged in user.
+func CurrentUser(c *gin.Context) {
+	session := sessions.Default(c)
+	userID := session.Get("userID")
+	if userID == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "User not logged in.",
+			"err": "User ID not in session.",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": session.Get("Username"),
+			"err": "",
+		})
 	}
 }
 

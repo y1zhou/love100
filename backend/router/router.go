@@ -3,7 +3,6 @@ package router
 import (
 	"net/http"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -13,22 +12,24 @@ import (
 func SetupRouter(cookieSecret string) *gin.Engine {
 	r := gin.Default()
 
-	r.Use(cors.Default())
-
 	store := cookie.NewStore([]byte(cookieSecret))
 	r.Use(sessions.Sessions("userSession", store))
 
 	rUsers := r.Group("/users")
 	{
-		rUsers.GET("/", FetchAllUsers)
 		rUsers.POST("/signup", CreateUser)
 		rUsers.POST("/signin", LoginUser)
-		rUsers.POST("/signout", LogoutUser)
+	}
+	rUsers.Use(AuthUser())
+	{
+		rUsers.GET("/", FetchAllUsers)
 	}
 
 	rUser := r.Group("/user")
+	rUser.GET("/", CurrentUser)
 	rUser.Use(AuthUser())
 	{
+		rUser.POST("/signout", LogoutUser)
 		rUser.PUT("/update", UpdateUser)
 		rUser.DELETE("/delete", DeleteUser)
 	}
@@ -42,7 +43,8 @@ func SetupRouter(cookieSecret string) *gin.Engine {
 	rContent.Use(AuthUser())
 	{
 		rContent.POST("/", CreateContent)
-		rContent.PUT("/", UpdateContent)
+		rContent.PUT("/", UpdateContentTitle)
+		rContent.PUT("/status", UpdateContentStatus)
 		rContent.DELETE("/", DeleteContent)
 	}
 
