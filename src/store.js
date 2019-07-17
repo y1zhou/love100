@@ -9,6 +9,9 @@ export default new Vuex.Store({
     loggedIn: false
   },
   getters: {
+    numEntries: state => {
+      return state.tableData.length > 0 ? state.tableData.length : 0
+    },
     finishedPercentage: state => {
       return state.tableData.length > 0
         ? Math.round(
