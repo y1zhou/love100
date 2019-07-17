@@ -57,7 +57,7 @@
       :visible.sync="dialogFormVisible.add"
       @opened="$refs.addTitle.focus()"
       @closed="checkKeepAdding"
-      width="40%"
+      :width="dialogWidth"
       center
     >
       <el-form :model="form" @submit.native.prevent>
@@ -86,7 +86,7 @@
       title="编辑项目"
       :visible.sync="dialogFormVisible.edit"
       @opened="$refs.editTitle.select()"
-      width="40%"
+      :width="dialogWidth"
       center
     >
       <el-form :model="form.edit" @submit.native.prevent>
@@ -334,6 +334,9 @@ export default {
   computed: {
     tableData() {
       return this.$store.state.tableData;
+    },
+    dialogWidth() {
+      return window.innerWidth > 900 ? "40%" : "90%";
     }
   }
 };

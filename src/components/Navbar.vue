@@ -68,9 +68,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-.login-card {
-  z-index: 10;
-  position: fixed;
-  margin-top: 5px;
-}
 </style>

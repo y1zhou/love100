@@ -7,11 +7,11 @@
       title="登录"
       :visible.sync="loginVisible"
       @opened="$refs.username.focus()"
-      width="30%"
+      :width="loginCardWidth"
       center
       v-loading="loading"
     >
-      <div class="login-info">
+      <div>
         <el-input ref="username" placeholder="用户名" v-model="username" clearable />
         <el-input
           placeholder="密码"
@@ -45,47 +45,44 @@ export default {
   props: {},
   methods: {
     postLogin: function() {
-      this.loading = true;
-      axios
-        .post(`/api/users/signin`, {
-          Username: this.username,
-          Password: this.password
-        })
-        .then(r => {
-          if (r.data.err != "") {
-            this.$message.error(r.data.msg);
-          } else {
-            setTimeout(() => {
-              window.location.reload();
-            }, 1000);
-            this.$message({
-              message: `${r.data.msg} 登录成功！`,
-              type: "success"
-            });
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
+      if (this.username.length === 0) {
+        this.$message.error("用户名为空");
+        this.$refs.username.focus();
+      } else if (this.password.length < 7) {
+        this.$message.error("密码长度过短");
+      } else {
+        this.loading = true;
+        axios
+          .post(`/api/users/signin`, {
+            Username: this.username,
+            Password: this.password
+          })
+          .then(r => {
+            if (r.data.err != "") {
+              this.loading = false;
+              this.$message.error(r.data.msg);
+            } else {
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+              this.$message({
+                message: `${r.data.msg} 登录成功！`,
+                type: "success"
+              });
+            }
+          })
+          .catch(err => {
+            this.loading = false;
+            this.loginVisible = false;
+            console.log(err);
+          });
+      }
+    }
+  },
+  computed: {
+    loginCardWidth() {
+      return window.innerWidth > 900 ? "30%" : "90%";
     }
   }
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-.login-card {
-  width: 300px;
-}
-.clearfix:before,
-.clearfix:after {
-  display: table;
-  content: "";
-}
-.clearfix:after {
-  clear: both;
-}
-.login-button {
-  margin-top: 2px;
-}
-</style>
