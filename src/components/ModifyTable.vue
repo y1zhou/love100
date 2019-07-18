@@ -213,6 +213,7 @@ export default {
         this.dialogFormVisible.add = true;
       }
       this.form.add.Title = "";
+      this.form.add.Comment = "";
     },
     toggleStatus(index) {
       // The status changes with the @change event of el-switch
