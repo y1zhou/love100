@@ -8,14 +8,15 @@ type (
 	// Contents ...
 	Contents struct {
 		gorm.Model
-		Title  string `gorm:"Type:varchar(200);NOT NULL;UNIQUE"`
-		Status bool   `gorm:"Type:BOOLEAN;DEFAULT:0"`
+		Title   string `gorm:"Type:varchar(200);NOT NULL;UNIQUE"`
+		Comment string `gorm:"Type:varchar(200)"`
+		Status  bool   `gorm:"Type:BOOLEAN;DEFAULT:0"`
 	}
 
 	//Users ...
 	Users struct {
 		gorm.Model
-		Username string `gorm:"Type:varchar(32);DEFAULT:NULL;UNIQUE;UNIQUE_INDEX:users_name"`
+		Username string `gorm:"Type:varchar(32);DEFAULT:NULL;UNIQUE"`
 		Password string `gorm:"Type:varchar(64);NOT NULL"`
 		Email    string `gorm:"Type:varchar(200);UNIQUE;DEFAULT:NULL"`
 	}

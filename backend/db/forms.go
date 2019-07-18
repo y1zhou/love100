@@ -4,8 +4,9 @@ type (
 	// ContentCreateForm Insert new row of things to do together.
 	// Can also be used to query items.
 	ContentCreateForm struct {
-		Title  string `form:"Title" json:"Title" binding:"required"`
-		Status bool   `form:"ItemStatus" json:"ItemStatus" sql:"default:false"`
+		Title   string `form:"Title" json:"Title" binding:"required"`
+		Comment string `form:"Comment" json:"Comment"`
+		Status  bool   `form:"ItemStatus" json:"ItemStatus" sql:"default:false"`
 	}
 
 	// ContentDeleteForm Delete existing items using their ID.
@@ -15,8 +16,9 @@ type (
 
 	// ContentTitleUpdateForm ...
 	ContentTitleUpdateForm struct {
-		ItemID int64  `form:"ItemID" json:"ItemID" binding:"required"`
-		Title  string `form:"Title" json:"Title" binding:"required"`
+		ItemID  int64  `form:"ItemID" json:"ItemID" binding:"required"`
+		Title   string `form:"Title" json:"Title" binding:"required"`
+		Comment string `form:"Comment" json:"Comment"`
 	}
 
 	//ContentStatusUpdateForm ...

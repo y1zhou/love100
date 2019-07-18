@@ -18,8 +18,9 @@ func CreateContent(c *gin.Context) {
 		return
 	}
 	item := db.Contents{
-		Title:  json.Title,
-		Status: json.Status,
+		Title:   json.Title,
+		Comment: json.Comment,
+		Status:  json.Status,
 	}
 	if err := db.DB.Create(&item).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -83,7 +84,8 @@ func UpdateContentTitle(c *gin.Context) {
 	}
 	if err := db.DB.Model(&contents).
 		Updates(map[string]interface{}{
-			"Title": json.Title,
+			"Title":   json.Title,
+			"Comment": json.Comment,
 		}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": "Update items failed",
