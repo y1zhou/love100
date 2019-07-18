@@ -16,6 +16,7 @@
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column type="selection"></el-table-column>
       <el-table-column prop="Title" label="项目"></el-table-column>
+      <el-table-column prop="Comment" label="备注"></el-table-column>
       <el-table-column prop="CreatedAt" label="创建时间"></el-table-column>
       <el-table-column prop="UpdatedAt" label="更新时间"></el-table-column>
 
@@ -66,6 +67,14 @@
             v-model="form.add.Title"
             ref="addTitle"
             clearable
+            @keyup.enter.native="$refs.addComment.focus()"
+          />
+        </el-form-item>
+        <el-form-item label="项目备注" label-width="80px">
+          <el-input
+            v-model="form.add.Comment"
+            ref="addComment"
+            clearable
             @keyup.enter.native="addItem"
           />
         </el-form-item>
@@ -95,6 +104,14 @@
           <el-input
             v-model="form.edit.Title"
             ref="editTitle"
+            clearable
+            @keyup.enter.native="$refs.editComment.focus()"
+          />
+        </el-form-item>
+        <el-form-item label="项目备注" label-width="80px">
+          <el-input
+            v-model="form.edit.Comment"
+            ref="editComment"
             clearable
             @keyup.enter.native="updateItem(form.edit.ItemNum)"
           />
@@ -126,13 +143,16 @@ export default {
       form: {
         add: {
           Title: "",
+          Comment: "",
           Status: false
         },
         edit: {
           ItemNum: Number,
           ItemID: Number,
+          Title: String,
+          Comment: String,
           OldTitle: String,
-          Title: String
+          OldComment: String
         }
       }
     };
@@ -231,6 +251,8 @@ export default {
       this.form.edit.ItemID = row.ID;
       this.form.edit.OldTitle = row.Title;
       this.form.edit.Title = row.Title;
+      this.form.edit.OldComment = row.Comment;
+      this.form.edit.Comment = row.Comment;
       this.dialogFormVisible.edit = true;
     },
     updateItem(tableDataIndex) {
@@ -241,7 +263,10 @@ export default {
         });
         return;
       }
-      if (this.form.edit.Title === this.form.edit.OldTitle) {
+      if (
+        this.form.edit.Title === this.form.edit.OldTitle &&
+        this.form.edit.Comment === this.form.edit.OldComment
+      ) {
         this.$message({
           message: "内容没有变化",
           type: "warning"
@@ -251,7 +276,8 @@ export default {
       axios
         .put("/api/content/", {
           ItemID: this.form.edit.ItemID,
-          Title: this.form.edit.Title
+          Title: this.form.edit.Title,
+          Comment: this.form.edit.Comment
         })
         .then(r => {
           if (r.data.err != "") {

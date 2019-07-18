@@ -1,9 +1,10 @@
 <template>
   <div class="main-table">
-  <el-table :data="tableData" :row-class-name="tableRowClass">
-    <el-table-column type="index" width="50"></el-table-column>
-    <el-table-column prop="Title"></el-table-column>
-  </el-table>
+    <el-table :data="tableData" :row-class-name="tableRowClass">
+      <el-table-column type="index" width="50"></el-table-column>
+      <el-table-column prop="Title" label="要做的事"></el-table-column>
+      <el-table-column prop="Comment" label="备注" class-name="row-comment"></el-table-column>
+    </el-table>
   </div>
 </template>
 
