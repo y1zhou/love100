@@ -15,12 +15,12 @@
     >
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column type="selection"></el-table-column>
-      <el-table-column prop="Title" label="项目"></el-table-column>
+      <el-table-column prop="Title" label="项目" class-name="row-title"></el-table-column>
       <el-table-column prop="Comment" label="备注"></el-table-column>
-      <el-table-column prop="CreatedAt" label="创建时间"></el-table-column>
-      <el-table-column prop="UpdatedAt" label="更新时间"></el-table-column>
+      <el-table-column v-if="largeScreen" prop="CreatedAt" label="创建时间"></el-table-column>
+      <el-table-column v-if="largeScreen" prop="UpdatedAt" label="更新时间"></el-table-column>
 
-      <el-table-column fixed="right">
+      <el-table-column fixed="right" min-width="150px">
         <template slot="header">
           <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
         </template>
@@ -28,8 +28,6 @@
           <el-switch
             v-model="scope.row.Status"
             @change="toggleStatus(scope.$index)"
-            active-text="完成"
-            inactive-text="未完成"
             style="margin-right: 10px;"
           />
           <el-tooltip effect="dark" content="编辑" placement="top">
@@ -361,8 +359,11 @@ export default {
     tableData() {
       return this.$store.state.tableData;
     },
+    largeScreen() {
+      return window.innerWidth > 900;
+    },
     dialogWidth() {
-      return window.innerWidth > 900 ? "40%" : "90%";
+      return this.largeScreen ? "40%" : "90%";
     }
   }
 };
@@ -375,13 +376,16 @@ export default {
   max-width: 1300px;
 }
 .el-table .finished-row {
-  text-decoration: line-through;
-  font-style: italic;
   color: #c0c4cc;
 }
+.el-table .finished-row .row-title {
+  font-style: italic;
+  text-decoration: line-through;
+}
 .floating-buttons {
+  z-index: 10;
   position: fixed;
-  left: 100px;
-  bottom: 100px;
+  left: 1rem;
+  bottom: 1rem;
 }
 </style>
