@@ -1,5 +1,5 @@
 <template>
-  <div style="align-items: center; width: 100%">
+  <div class="edit-table">
     <div class="floating-buttons">
       <el-tooltip effect="dark" content="添加" placement="top">
         <el-button @click="dialogFormVisible.add = true" icon="el-icon-plus" circle />
@@ -343,6 +343,11 @@ export default {
 </script>
 
 <style scoped>
+.edit-table {
+  align-items: center;
+  width: 100%;
+  max-width: 1300px;
+}
 .el-table .finished-row {
   text-decoration: line-through;
   font-style: italic;

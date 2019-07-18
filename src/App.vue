@@ -4,8 +4,8 @@
       <navbar />
     </el-header>
     <el-main class="main-container">
-      <modify-table v-if="loggedIn" class="edit-table" />
-      <display-table v-else class="main-table" />
+      <modify-table v-if="loggedIn" />
+      <display-table v-else />
       <el-backtop />
     </el-main>
   </el-container>
@@ -85,13 +85,5 @@ export default {
   align-items: center;
   flex-direction: column;
   width: 100%;
-}
-.main-table {
-  width: 100%;
-  max-width: 800px;
-}
-.edit-table {
-  width: 100%;
-  max-width: 1050px;
 }
 </style>

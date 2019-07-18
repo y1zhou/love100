@@ -4,7 +4,7 @@
       <img src="../assets/love.png" />
     </el-col>
     <el-col :span="12" :offset="3">
-      <div>这里记录了我们要一起做的 {{$store.getters.numEntries}} 件事。</div>
+      <div>这里记录了我们要一起做的 {{ $store.getters.numEntries }} 件事。</div>
       <el-progress
         :text-inside="true"
         :stroke-width="15"

@@ -1,13 +1,13 @@
 <template>
+  <div class="main-table">
   <el-table :data="tableData" :row-class-name="tableRowClass">
     <el-table-column type="index" width="50"></el-table-column>
     <el-table-column prop="Title"></el-table-column>
   </el-table>
+  </div>
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "DisplayTable",
   props: {},
@@ -29,9 +29,17 @@ export default {
 </script>
 
 <style>
+.main-table {
+  width: 100%;
+  max-width: 800px;
+}
 .el-table .finished-row {
-  text-decoration: line-through;
+  /* text-decoration: line-through; */
   font-style: italic;
   color: #c0c4cc;
+}
+.row-comment {
+  text-decoration: none;
+  color: #909399;
 }
 </style>

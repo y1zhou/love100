@@ -48,7 +48,7 @@ export default {
       if (this.username.length === 0) {
         this.$message.error("用户名为空");
         this.$refs.username.focus();
-      } else if (this.password.length < 7) {
+      } else if (this.password.length < 6) {
         this.$message.error("密码长度过短");
       } else {
         this.loading = true;
@@ -72,6 +72,7 @@ export default {
             }
           })
           .catch(err => {
+            this.$message.error("登录错误，请重试");
             this.loading = false;
             this.loginVisible = false;
             console.log(err);
