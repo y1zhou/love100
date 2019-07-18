@@ -178,6 +178,7 @@ export default {
       axios
         .post("/api/content/", {
           Title: this.form.add.Title,
+          Comment: this.form.add.Comment,
           ItemStatus: this.form.add.Status
         })
         .then(r => {
