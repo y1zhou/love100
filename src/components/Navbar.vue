@@ -13,10 +13,7 @@
       />
     </el-col>
     <el-col :span="3" :offset="3">
-      <el-tooltip v-if="showLogout" effect="dark" content="登出" placement="bottom">
-        <el-button @click="postLogout" icon="el-icon-switch-button" circle />
-      </el-tooltip>
-      <login v-else />
+      <login />
     </el-col>
   </el-row>
 </template>
@@ -29,31 +26,7 @@ export default {
   components: {
     Login
   },
-  props: {},
-  methods: {
-    postLogout: function() {
-      axios
-        .post("/api/user/signout", {
-          withCredentials: true
-        })
-        .then(r => {
-          if (r.data.err != "") {
-            this.$message.error(r.data.err);
-          } else {
-            this.$store.commit("logout");
-            window.location.reload();
-          }
-        })
-        .catch(err => {
-          this.$message.error("You are not logged in.");
-          console.log(err);
-        });
-    }
-  },
   computed: {
-    showLogout() {
-      return this.$store.state.loggedIn;
-    },
     // Calculate percentage of finished entries
     percentFinished() {
       return this.$store.getters.finishedPercentage;

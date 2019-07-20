@@ -1,6 +1,9 @@
 <template>
   <div>
-    <el-tooltip effect="dark" content="登录" placement="bottom">
+    <el-tooltip v-if="showLogout" effect="dark" content="登出" placement="bottom">
+      <el-button @click="postLogout" icon="el-icon-switch-button" circle />
+    </el-tooltip>
+    <el-tooltip v-else effect="dark" content="登录" placement="bottom">
       <el-button @click="loginVisible = true" icon="el-icon-user" circle />
     </el-tooltip>
     <el-dialog
@@ -48,8 +51,6 @@ export default {
       if (this.username.length === 0) {
         this.$message.error("用户名为空");
         this.$refs.username.focus();
-      } else if (this.password.length < 6) {
-        this.$message.error("密码长度过短");
       } else {
         this.loading = true;
         axios
@@ -62,13 +63,16 @@ export default {
               this.loading = false;
               this.$message.error(r.data.msg);
             } else {
-              setTimeout(() => {
-                window.location.reload();
-              }, 1000);
+              // setTimeout(() => {
+              //   window.location.reload();
+              // }, 1000);
+              this.$store.commit("login");
               this.$message({
                 message: `${r.data.msg} 登录成功！`,
                 type: "success"
               });
+              this.loading = false;
+              this.loginVisible = false;
             }
           })
           .catch(err => {
@@ -78,9 +82,34 @@ export default {
             console.log(err);
           });
       }
+    },
+    postLogout: function() {
+      axios
+        .post("/api/user/signout", {
+          withCredentials: true
+        })
+        .then(r => {
+          if (r.data.err != "") {
+            this.$message.error(r.data.err);
+          } else {
+            this.$store.commit("logout");
+            this.$message({
+              message: `退出登录`,
+              type: "success"
+            });
+            // window.location.reload();
+          }
+        })
+        .catch(err => {
+          this.$message.error("You are not logged in.");
+          console.log(err);
+        });
     }
   },
   computed: {
+    showLogout() {
+      return this.$store.state.loggedIn;
+    },
     loginCardWidth() {
       return window.innerWidth > 900 ? "30%" : "90%";
     }
