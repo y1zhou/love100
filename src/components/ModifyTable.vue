@@ -9,7 +9,7 @@
       </el-tooltip>
     </div>
     <el-table
-      :data="tableData.filter(row => !search || row.Title.includes(search))"
+      :data="tableData.filter(row => !search || row.Title.includes(search) || row.Comment.includes(search))"
       :row-class-name="tableRowClass"
       @selection-change="handleSelectionChange"
     >
