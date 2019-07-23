@@ -3,7 +3,7 @@
     <el-header>
       <navbar />
     </el-header>
-    <el-main class="main-container">
+    <el-main class="main-container" v-loading="isLoading">
       <modify-table v-if="loggedIn" />
       <display-table v-else />
       <el-backtop />
@@ -23,6 +23,11 @@ export default {
     Navbar,
     DisplayTable,
     ModifyTable
+  },
+  data() {
+    return {
+      isLoading: true
+    };
   },
   created() {
     // Check login status
@@ -55,8 +60,8 @@ export default {
               hour12: false
             });
           });
-          r.data.data.sort(x => x.Status);
           this.$store.commit("loadTable", r.data.data);
+          this.isLoading = false;
         }
       })
       .catch(err => {
