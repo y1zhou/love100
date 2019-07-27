@@ -1,5 +1,5 @@
 <template>
-  <div class="edit-table">
+  <div id="main-table-edit">
     <div class="floating-buttons">
       <el-tooltip effect="dark" content="添加" placement="top">
         <el-button @click="dialogFormVisible.add = true" icon="el-icon-plus" circle />
@@ -12,6 +12,7 @@
       :data="tableData.filter(row => !search || row.Title.includes(search) || row.Comment.includes(search))"
       :row-class-name="tableRowClass"
       @selection-change="handleSelectionChange"
+      class="edit-table"
     >
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column type="selection"></el-table-column>
@@ -371,18 +372,20 @@ export default {
 };
 </script>
 
-<style scoped>
-.edit-table {
+<style lang="scss">
+#main-table-edit {
   align-items: center;
   width: 100%;
   max-width: 1300px;
 }
-.el-table .finished-row {
-  color: #c0c4cc;
-}
-.el-table .finished-row .row-title {
-  font-style: italic;
-  text-decoration: line-through;
+.edit-table {
+  .finished-row {
+    color: #c0c4cc;
+    .row-title {
+      font-style: italic;
+      text-decoration: line-through;
+    }
+  }
 }
 .floating-buttons {
   z-index: 10;

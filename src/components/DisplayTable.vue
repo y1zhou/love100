@@ -1,6 +1,6 @@
 <template>
-  <div class="main-table">
-    <el-table :data="tableData" :row-class-name="tableRowClass">
+  <div id="main-table">
+    <el-table :data="tableData" :row-class-name="tableRowClass" class="display-table">
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column prop="Title" label="要做的事" class-name="row-title"></el-table-column>
       <el-table-column prop="Comment" label="备注" class-name="row-comment"></el-table-column>
@@ -29,19 +29,21 @@ export default {
 };
 </script>
 
-<style>
-.main-table {
+<style lang="scss">
+#main-table {
   width: 100%;
   max-width: 800px;
 }
-.el-table .finished-row {
-  color: #c0c4cc;
-}
-.el-table .finished-row .row-title {
-  font-style: italic;
-  text-decoration: line-through;
-}
-.el-table .row-comment {
-  color: #909399;
+.display-table {
+  .finished-row {
+    color: #c0c4cc;
+    .row-title {
+      font-style: italic;
+      text-decoration: line-through;
+    }
+  }
+  .row-comment {
+    color: #909399;
+  }
 }
 </style>
