@@ -7,6 +7,7 @@
       <modify-table v-if="loggedIn" />
       <display-table v-else />
       <el-backtop />
+      <like-button />
     </el-main>
   </el-container>
 </template>
@@ -15,6 +16,7 @@
 import Navbar from "./components/Navbar.vue";
 import DisplayTable from "./components/DisplayTable";
 import ModifyTable from "./components/ModifyTable";
+import LikeButton from "./components/LikeButton";
 import axios from "axios";
 
 export default {
@@ -22,7 +24,8 @@ export default {
   components: {
     Navbar,
     DisplayTable,
-    ModifyTable
+    ModifyTable,
+    LikeButton
   },
   data() {
     return {
@@ -90,5 +93,6 @@ export default {
   align-items: center;
   flex-direction: column;
   width: 100%;
+  margin-top: 20px;
 }
 </style>
