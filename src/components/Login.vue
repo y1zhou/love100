@@ -63,9 +63,6 @@ export default {
               this.loading = false;
               this.$message.error(r.data.msg);
             } else {
-              // setTimeout(() => {
-              //   window.location.reload();
-              // }, 1000);
               this.$store.commit("login");
               this.$message({
                 message: `${r.data.msg} 登录成功！`,
@@ -73,12 +70,14 @@ export default {
               });
               this.loading = false;
               this.loginVisible = false;
+              this.password = "";
             }
           })
           .catch(err => {
             this.$message.error("登录错误，请重试");
             this.loading = false;
             this.loginVisible = false;
+            this.password = "";
             console.log(err);
           });
       }
