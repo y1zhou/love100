@@ -35,6 +35,7 @@ type (
 		Password    string `form:"Password" json:"Password" binding:"required,min=6"`
 		ConfirmPass string `form:"ConfirmPass" json:"ConfirmPass" binding:"eqfield=Password"`
 		Email       string `form:"Email" json:"Email" binding:"omitempty,email"`
+		Gender      string `form:"Gender" json:"Gender" binding:"required"`
 	}
 	// UserQueryForm Check if an user exists.
 	UserQueryForm struct {
@@ -49,6 +50,7 @@ type (
 		Password string `form:"Password" json:"Password" binding:"required,min=6"`
 		NewPass  string `form:"NewPass" json:"NewPass" binding:"omitempty,min=6,nefield=Password"`
 		Email    string `form:"Email" json:"Email" binding:"omitempty,email"`
+		Gender   string `form:"Gender" json:"Gender" binding:"omitempty"`
 	}
 	// UserLoginForm ...
 	UserLoginForm struct {

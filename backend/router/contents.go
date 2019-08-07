@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/y1zhou/love100/backend/db"
 )
@@ -17,10 +18,12 @@ func CreateContent(c *gin.Context) {
 		})
 		return
 	}
+	userID := sessions.Default(c).Get("userID")
 	item := db.Contents{
-		Title:   json.Title,
-		Comment: json.Comment,
-		Status:  json.Status,
+		Title:    json.Title,
+		Comment:  json.Comment,
+		Status:   json.Status,
+		AuthorID: userID.(uint),
 	}
 	if err := db.DB.Create(&item).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -82,10 +85,12 @@ func UpdateContentTitle(c *gin.Context) {
 		})
 		return
 	}
+	userID := sessions.Default(c).Get("userID")
 	if err := db.DB.Model(&contents).
 		Updates(map[string]interface{}{
-			"Title":   json.Title,
-			"Comment": json.Comment,
+			"Title":    json.Title,
+			"Comment":  json.Comment,
+			"AuthorID": userID.(uint),
 		}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": "Update items failed",

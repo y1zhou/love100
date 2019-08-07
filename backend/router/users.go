@@ -27,6 +27,7 @@ func CreateUser(c *gin.Context) {
 		Username: json.Username,
 		Password: hash,
 		Email:    json.Email,
+		Gender:   json.Gender,
 	}
 	if err := db.DB.Create(&user).Error; err != nil {
 		// User already exists
@@ -140,7 +141,7 @@ func FetchAllUsers(c *gin.Context) {
 	}
 	var users []userQuery
 	db.DB.Table("users").
-		Select("id, username, email, created_at, updated_at, deleted_at").
+		Select("id, username, email, gender, is_active, created_at, updated_at, deleted_at").
 		Order("deleted_at asc").
 		Scan(&users)
 	c.JSON(http.StatusOK, gin.H{
@@ -163,7 +164,7 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 	var user db.Users
-	if err := db.DB.Where("username = ?", json.Username).
+	if err := db.DB.Where("username = ? AND is_active = TRUE", json.Username).
 		First(&user).Error; err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"msg": "User not found in database.",
