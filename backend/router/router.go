@@ -19,9 +19,6 @@ func SetupRouter(cookieSecret string) *gin.Engine {
 	{
 		rUsers.POST("/signup", CreateUser)
 		rUsers.POST("/signin", LoginUser)
-	}
-	rUsers.Use(AuthUser())
-	{
 		rUsers.GET("/", FetchAllUsers)
 	}
 

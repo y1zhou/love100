@@ -135,14 +135,13 @@ func UpdateUser(c *gin.Context) {
 // FetchAllUsers lists all users in the database.
 func FetchAllUsers(c *gin.Context) {
 	type userQuery struct {
-		gorm.Model
+		ID       int64
 		Username string
-		Email    string
+		Gender   string
 	}
 	var users []userQuery
 	db.DB.Table("users").
-		Select("id, username, email, gender, is_active, created_at, updated_at, deleted_at").
-		Order("deleted_at asc").
+		Select("id, username, gender").
 		Scan(&users)
 	c.JSON(http.StatusOK, gin.H{
 		"msg":  len(users),
