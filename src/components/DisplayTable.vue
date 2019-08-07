@@ -14,11 +14,21 @@ export default {
   props: {},
   methods: {
     tableRowClass({ row }) {
+      let res = [];
       if (row.Status) {
-        return "finished-row";
+        res.push("finished-row");
       } else {
-        return "unfinished-row";
+        res.push("unfinished-row");
       }
+      res.push(this.userGender(row.AuthorID));
+      return res.join(" ");
+    },
+    userGender(userID) {
+      return this.$store.state.userData
+        .filter(x => x.ID == userID)
+        .map(x => x.Gender) == "F"
+        ? "girl-row"
+        : "guy-row";
     }
   },
   computed: {
@@ -35,6 +45,7 @@ export default {
   max-width: 800px;
 }
 .display-table {
+  color: #606266;
   .finished-row {
     color: #c0c4cc;
     .row-title {
@@ -42,8 +53,15 @@ export default {
       text-decoration: line-through;
     }
   }
-  .row-comment {
-    color: #909399;
+  .guy-row {
+    .row-comment {
+      color: #909399;
+    }
+  }
+  .girl-row {
+    .row-comment {
+      color: #eb83ab;
+    }
   }
 }
 </style>

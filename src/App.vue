@@ -70,6 +70,19 @@ export default {
       .catch(err => {
         console.log(err);
       });
+    // Get user gender information
+    axios
+      .get(`/api/users/`)
+      .then(r => {
+        if (r.data.err != "") {
+          this.$message.error(r.data.msg);
+        } else {
+          this.$store.commit("loadUsers", r.data.data);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   },
   computed: {
     loggedIn: function() {

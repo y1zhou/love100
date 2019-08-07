@@ -17,7 +17,7 @@
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column type="selection"></el-table-column>
       <el-table-column prop="Title" label="项目" class-name="row-title"></el-table-column>
-      <el-table-column prop="Comment" label="备注"></el-table-column>
+      <el-table-column prop="Comment" label="备注" class-name="row-comment"></el-table-column>
       <el-table-column v-if="largeScreen" prop="CreatedAt" label="创建时间"></el-table-column>
       <el-table-column v-if="largeScreen" prop="UpdatedAt" label="更新时间"></el-table-column>
 
@@ -159,11 +159,21 @@ export default {
   props: {},
   methods: {
     tableRowClass({ row }) {
+      let res = [];
       if (row.Status) {
-        return "finished-row";
+        res.push("finished-row");
       } else {
-        return "unfinished-row";
+        res.push("unfinished-row");
       }
+      res.push(this.userGender(row.AuthorID));
+      return res.join(" ");
+    },
+    userGender(userID) {
+      return this.$store.state.userData
+        .filter(x => x.ID == userID)
+        .map(x => x.Gender) == "F"
+        ? "girl-row"
+        : "guy-row";
     },
     handleSelectionChange(rows) {
       this.delItems = rows.map(x => x.ID);
@@ -311,6 +321,13 @@ export default {
         });
     },
     promptDeleteItems(itemIDs) {
+      if (itemIDs.length === 0) {
+        this.$message({
+          message: "没有选中需要删除的项目",
+          type: "warning"
+        });
+        return;
+      }
       this.$confirm(
         `此操作将删除 ${itemIDs.length} 条内容, 是否继续?`,
         "提示",
@@ -331,13 +348,6 @@ export default {
         });
     },
     deleteItems(itemIDs) {
-      if (itemIDs.length === 0) {
-        this.$message({
-          message: "没有选中需要删除的项目",
-          type: "warning"
-        });
-        return;
-      }
       axios
         .delete("/api/content/", {
           data: {
@@ -379,11 +389,22 @@ export default {
   max-width: 1300px;
 }
 .edit-table {
+  color: #606266;
   .finished-row {
     color: #c0c4cc;
     .row-title {
       font-style: italic;
       text-decoration: line-through;
+    }
+  }
+  .guy-row {
+    .row-comment {
+      color: #909399;
+    }
+  }
+  .girl-row {
+    .row-comment {
+      color: #eb83ab;
     }
   }
 }

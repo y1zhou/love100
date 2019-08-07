@@ -6,6 +6,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     tableData: [],
+    userData: [],
     loggedIn: false
   },
   getters: {
@@ -41,6 +42,9 @@ export default new Vuex.Store({
       state.tableData = state.tableData.filter(
         x => payload.itemIDs.indexOf(x.ID) === -1
       )
+    },
+    loadUsers(state, users) {
+      state.userData = users
     }
   },
   actions: {}
