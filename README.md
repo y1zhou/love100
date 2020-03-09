@@ -7,10 +7,17 @@ To run the website you'll need `nginx` and `MySQL`, both of which have countless
 
 ```json
 {
-  "BackendPort": "9423",
-  "MysqlDatabase": "love100",
-  "MysqlUser": "username",
-  "MysqlPassword": "UsuallyMoreComplicated"
+    "Database": {
+        "Client": "sqlite3",
+        "Connection": {
+            "User": "leave_empty_if_sqlite3",
+            "Password": "fill_if_using_mysql",
+            "DatabaseName": "db_name_in_mysql",
+            "filename": "/path/to/sqlite3_data.db"
+        }
+    },
+    "CookieSecret": "a_random_cookie_secret",
+    "BackendPort": "9423"
 }
 ```
 
@@ -36,6 +43,8 @@ Note that there should be a `config.json` file in the same directory.
 
 ```bash
 cd /path/to/love100
+
+yarn
 yarn build
 ```
 
